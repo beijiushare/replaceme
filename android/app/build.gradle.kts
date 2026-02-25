@@ -1,7 +1,6 @@
 plugins {
     id("com.android.application")
     id("kotlin-android")
-    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
 
@@ -20,21 +19,56 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "top.beijiu.replaceme"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        
+        // 配置支持的架构
+        ndk {
+            abiFilters += listOf("armeabi-v7a", "arm64-v8a")
+        }
+    }
+
+    // 签名配置
+    signingConfigs {
+        create("release") {
+            keyAlias = System.getenv("KEY_ALIAS") ?: "default"
+            keyPassword = System.getenv("KEY_PASSWORD") ?: "password"
+            storePassword = System.getenv("STORE_PASSWORD") ?: "password"
+            if (System.getenv("SIGNING_KEY") != null) {
+                val keystoreFile = File("${project.buildDir}/keystore.jks")
+                keystoreFile.parentFile?.mkdirs()
+                keystoreFile.writeBytes(Base64.getDecoder().decode(System.getenv("SIGNING_KEY")))
+                storeFile = keystoreFile
+            }
+        }
     }
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
+            signingConfig = signingConfigs.getByName("release")
+            isMinifyEnabled = true
+            isShrinkResources = true
+            
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+        debug {
             signingConfig = signingConfigs.getByName("debug")
+        }
+    }
+
+    // 使用 split APK，为不同架构生成不同的 APK
+    splits {
+        abi {
+            isEnable = true
+            reset()
+            include("armeabi-v7a", "arm64-v8a")
+            isUniversalApk = true // 同时生成全架构的 APK
         }
     }
 }
