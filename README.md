@@ -2,15 +2,35 @@
 
 生活小物，按时焕新。
 
+[最新版本](https://github.com/beijiushare/replaceme/releases/latest)
+
+
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+本项目开发环境`flutter --version:3.38.9`
+ 
+### 克隆项目
 
-A few resources to get you started if this is your first Flutter project:
+```bash
+git clone https://github.com/beijiushare/replaceme.git
+cd replaceme
+```
+ 
+### 安装依赖
+ 
+```bash
+flutter pub get
+```
+ 
+### 运行项目
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+```bash
+flutter run
+```
+ 
+### 构建
+```bash
+flutter build apk --release
+```
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+生成的`apk`在`.\build\app\outputs\flutter-apk`目录下
