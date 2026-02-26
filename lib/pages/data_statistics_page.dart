@@ -95,26 +95,7 @@ class _DataStatisticsPageState extends State<DataStatisticsPage> {
               ),
             ),
 
-            // 最近过期提醒
-            Card(
-              margin: const EdgeInsets.only(bottom: 16),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('最近过期提醒', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 16),
-                    ..._getSoonExpiredItems(items).map((item) {
-                      return ListTile(
-                        title: Text(item.name),
-                        subtitle: Text('剩余 ${item.daysLeft} 天'),
-                      );
-                    }),
-                  ],
-                ),
-              ),
-            ),
+
           ],
         ),
       ),
@@ -164,14 +145,7 @@ class _DataStatisticsPageState extends State<DataStatisticsPage> {
     };
   }
 
-  // 获取即将过期的物品
-  List<Item> _getSoonExpiredItems(List<Item> items) {
-    return items
-        .where((item) => !item.isExpired && item.daysLeft <= 7)
-        .toList()
-        ..sort((a, b) => a.daysLeft.compareTo(b.daysLeft))
-        ..take(5).toList();
-  }
+
 
   // 统计项组件
   Widget _statisticItem(String title, int value, IconData icon) {
