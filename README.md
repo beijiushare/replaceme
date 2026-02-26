@@ -34,3 +34,8 @@ flutter build apk --release
 ```
 
 生成的`apk`在`.\build\app\outputs\flutter-apk`目录下
+
+## 赞助
+您可以使用微信赞助本项目
+<img width="1037" height="1037" alt="赞赏码" src="https://github.com/user-attachments/assets/490cdff6-5bec-4211-b4d1-1020a16604dd" />
+
