@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:replaceme/services/storage_service.dart';
@@ -159,6 +160,22 @@ class AppProvider extends ChangeNotifier {
   Future<void> updateItem(Item item) async {
     final index = _items.indexWhere((i) => i.id == item.id);
     if (index != -1) {
+      // 获取旧物品
+      final oldItem = _items[index];
+      
+      // 检查图片是否有变化
+      if (oldItem.imagePath != null && oldItem.imagePath != item.imagePath) {
+        // 删除旧的原图
+        _deleteFile(oldItem.imagePath!);
+      }
+      
+      // 检查缩略图是否有变化
+      if (oldItem.thumbnailPath != null && oldItem.thumbnailPath != item.thumbnailPath) {
+        // 删除旧的缩略图
+        _deleteFile(oldItem.thumbnailPath!);
+      }
+      
+      // 更新物品
       _items[index] = item;
       await saveData();
       notifyListeners();
@@ -191,6 +208,18 @@ class AppProvider extends ChangeNotifier {
 
   // 永久删除物品
   Future<void> permanentlyDeleteItem(String itemId) async {
+    // 找到要删除的物品
+    final itemToDelete = _recycledItems.firstWhere((item) => item.id == itemId, orElse: () => Item(id: '', name: '', startDate: DateTime.now(), endDate: DateTime.now(), categoryId: ''));
+    
+    // 删除物品的原图和缩略图
+    if (itemToDelete.imagePath != null) {
+      _deleteFile(itemToDelete.imagePath!);
+    }
+    if (itemToDelete.thumbnailPath != null) {
+      _deleteFile(itemToDelete.thumbnailPath!);
+    }
+    
+    // 从回收站中移除物品
     _recycledItems.removeWhere((item) => item.id == itemId);
     await saveData();
     notifyListeners();
@@ -198,9 +227,32 @@ class AppProvider extends ChangeNotifier {
 
   // 清空回收站
   Future<void> emptyRecycleBin() async {
+    // 删除所有回收物品的原图和缩略图
+    for (final item in _recycledItems) {
+      if (item.imagePath != null) {
+        _deleteFile(item.imagePath!);
+      }
+      if (item.thumbnailPath != null) {
+        _deleteFile(item.thumbnailPath!);
+      }
+    }
+    
+    // 清空回收站
     _recycledItems.clear();
     await saveData();
     notifyListeners();
+  }
+
+  // 删除文件（原图或缩略图）
+  void _deleteFile(String filePath) {
+    try {
+      final file = File(filePath);
+      if (file.existsSync()) {
+        file.deleteSync();
+      }
+    } catch (e) {
+      print('删除文件失败: $e');
+    }
   }
 
   // 添加分类

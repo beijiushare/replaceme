@@ -1,10 +1,13 @@
 import 'dart:io';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:replaceme/providers/app_provider.dart';
 import 'package:replaceme/models/item.dart';
 import 'package:replaceme/widgets/custom_date_picker.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:image/image.dart' as img;
 
 class AddItemPage extends StatefulWidget {
   final String categoryId;
@@ -20,6 +23,7 @@ class _AddItemPageState extends State<AddItemPage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   File? _imageFile;
+  String? _thumbnailPath;
   DateTime _startDate = DateTime.now();
   DateTime _endDate = DateTime.now().add(const Duration(days: 30));
   bool _useValidTime = false;
@@ -39,6 +43,7 @@ class _AddItemPageState extends State<AddItemPage> {
       if (widget.item!.imagePath != null) {
         _imageFile = File(widget.item!.imagePath!);
       }
+      _thumbnailPath = widget.item!.thumbnailPath;
     }
   }
 
@@ -206,6 +211,7 @@ class _AddItemPageState extends State<AddItemPage> {
                   Expanded(
                     child: TextField(
                       keyboardType: TextInputType.number,
+                      controller: TextEditingController(text: '30')..selection = TextSelection.collapsed(offset: 2),
                       onChanged: (value) {
                         setState(() {
                           _validDays = int.tryParse(value) ?? 0;
@@ -254,12 +260,83 @@ class _AddItemPageState extends State<AddItemPage> {
   // 选择图片
   Future<void> _pickImage() async {
     final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    final pickedFile = await picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 1080,
+      maxHeight: 1080,
+      imageQuality: 75,
+    );
     
     if (pickedFile != null) {
-      setState(() {
-        _imageFile = File(pickedFile.path);
-      });
+      // 复制原图到应用文档目录
+      final originalPath = await _saveOriginalImage(File(pickedFile.path));
+      _imageFile = File(originalPath);
+      
+      // 生成缩略图
+      _thumbnailPath = await _generateThumbnail(_imageFile!);
+      setState(() {});
+    }
+  }
+
+  // 保存原图到应用文档目录
+  Future<String> _saveOriginalImage(File imageFile) async {
+    try {
+      // 获取应用文档目录
+      final directory = await getApplicationDocumentsDirectory();
+      final imagesDir = Directory('${directory.path}/images');
+      
+      // 创建图片目录（如果不存在）
+      if (!await imagesDir.exists()) {
+        await imagesDir.create(recursive: true);
+      }
+      
+      // 生成唯一文件名
+      final fileName = '${DateTime.now().millisecondsSinceEpoch}_${Random().nextInt(1000)}.jpg';
+      final originalPath = '${imagesDir.path}/$fileName';
+      
+      // 复制原图到应用文档目录
+      final newImageFile = File(originalPath);
+      await imageFile.copy(newImageFile.path);
+      return newImageFile.path;
+    } catch (e) {
+      print('保存原图失败: $e');
+      return imageFile.path; // 如果出错，返回原图路径
+    }
+  }
+
+  // 生成缩略图
+  Future<String> _generateThumbnail(File imageFile) async {
+    try {
+      // 获取应用文档目录
+      final directory = await getApplicationDocumentsDirectory();
+      final thumbDir = Directory('${directory.path}/thumbnails');
+      
+      // 创建缩略图目录（如果不存在）
+      if (!await thumbDir.exists()) {
+        await thumbDir.create(recursive: true);
+      }
+      
+      // 生成唯一文件名
+      final fileName = '${DateTime.now().millisecondsSinceEpoch}_${Random().nextInt(1000)}.jpg';
+      final thumbnailPath = '${thumbDir.path}/$fileName';
+      
+      // 使用 image 库生成缩略图
+      final imageBytes = await imageFile.readAsBytes();
+      final image = img.decodeImage(imageBytes);
+      if (image != null) {
+        // 调整图片大小
+        final thumbnail = img.copyResize(image, width: 200, height: 200);
+        
+        // 保存缩略图
+        final thumbnailFile = File(thumbnailPath);
+        await thumbnailFile.writeAsBytes(img.encodeJpg(thumbnail, quality: 60));
+        return thumbnailFile.path;
+      }
+      
+      return imageFile.path; // 如果生成失败，返回原图路径
+    } catch (e) {
+      print('生成缩略图失败: $e');
+      return imageFile.path; // 如果出错，返回原图路径
     }
   }
 
@@ -301,11 +378,10 @@ class _AddItemPageState extends State<AddItemPage> {
   // 更新截止日期
   void _updateEndDate() {
     setState(() {
-      _endDate = _startDate.add(
-        Duration(
-          days: _validDays + _validMonths * 30 + _validYears * 365,
-        ),
-      );
+      // 直接计算总天数，不需要默认值处理
+      // 因为我们已经在输入框中设置了默认值 30
+      int totalDays = _validDays + _validMonths * 30 + _validYears * 365;
+      _endDate = _startDate.add(Duration(days: totalDays));
     });
   }
 
@@ -330,6 +406,7 @@ class _AddItemPageState extends State<AddItemPage> {
         categoryId: widget.categoryId,
         description: _descriptionController.text.trim(),
         imagePath: _imageFile?.path,
+        thumbnailPath: _thumbnailPath,
       );
       appProvider.updateItem(updatedItem);
     } else {
@@ -342,6 +419,7 @@ class _AddItemPageState extends State<AddItemPage> {
         categoryId: widget.categoryId,
         description: _descriptionController.text.trim(),
         imagePath: _imageFile?.path,
+        thumbnailPath: _thumbnailPath,
       );
       appProvider.addItem(newItem);
     }

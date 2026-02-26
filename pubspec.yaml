@@ -48,6 +48,10 @@ dependencies:
   reorderables: ^0.4.3
   # 打开链接
   url_launcher: ^6.3.0
+  # 文件路径
+  path_provider: ^2.1.3
+  # 图片处理
+  image: ^4.1.7
 
 dev_dependencies:
   flutter_test:

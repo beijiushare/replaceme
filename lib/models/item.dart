@@ -11,6 +11,7 @@ class Item {
   String categoryId;
   String? description;
   String? imagePath;
+  String? thumbnailPath;
 
   Item({
     required this.id,
@@ -20,6 +21,7 @@ class Item {
     required this.categoryId,
     this.description,
     this.imagePath,
+    this.thumbnailPath,
   });
 
   // 计算剩余天数
@@ -64,6 +66,7 @@ class Item {
       'categoryId': categoryId,
       'description': description,
       'imagePath': imagePath,
+      'thumbnailPath': thumbnailPath,
     };
   }
 
@@ -77,6 +80,7 @@ class Item {
       categoryId: json['categoryId'],
       description: json['description'],
       imagePath: json['imagePath'],
+      thumbnailPath: json['thumbnailPath'],
     );
   }
 }

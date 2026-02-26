@@ -33,7 +33,17 @@ class ItemCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8),
                   color: Theme.of(context).primaryColor.withOpacity(0.1),
                 ),
-                child: item.imagePath != null
+                child: item.thumbnailPath != null
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.file(
+                          File(item.thumbnailPath!),
+                          fit: BoxFit.cover,
+                          width: 60,
+                          height: 60,
+                        ),
+                      )
+                    : item.imagePath != null
                     ? ClipRRect(
                         borderRadius: BorderRadius.circular(8),
                         child: Image.file(

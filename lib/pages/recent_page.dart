@@ -5,9 +5,18 @@ import 'package:replaceme/providers/app_provider.dart';
 import 'package:replaceme/models/item.dart';
 import 'package:replaceme/widgets/item_card.dart';
 import 'package:replaceme/pages/add_item_page.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class RecentPage extends StatelessWidget {
   const RecentPage({super.key});
+
+  // 打开外部链接
+  Future<void> _launchURL() async {
+    final url = Uri.parse('https://oldhelp.beijiu.top/more/more-operations/replaceme.html');
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url, mode: LaunchMode.externalApplication);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,19 +29,22 @@ class RecentPage extends StatelessWidget {
         centerTitle: true,
       ),
       body: dangerousItems.isEmpty
-          ? const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.check_circle, size: 64, color: Colors.green),
-                  SizedBox(height: 16),
-                  Text('暂无危险期限内的物品', style: TextStyle(fontSize: 16)),
-                ],
-              ),
+          ? ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                // 只显示教程链接
+                _buildTutorialLink(),
+              ],
             )
           : ListView.builder(
-              itemCount: dangerousItems.length,
+              padding: const EdgeInsets.all(16),
+              itemCount: dangerousItems.length + 1, // +1 为教程链接
               itemBuilder: (context, index) {
+                // 如果是最后一个元素，显示教程链接
+                if (index == dangerousItems.length) {
+                  return _buildTutorialLink();
+                }
+                
                 final item = dangerousItems[index];
                 return ItemCard(
                   item: item,
@@ -117,6 +129,24 @@ class RecentPage extends StatelessWidget {
                 );
               },
             ),
+    );
+  }
+
+  // 构建教程链接
+  Widget _buildTutorialLink() {
+    return GestureDetector(
+      onTap: _launchURL,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        alignment: Alignment.center,
+        child: const Text(
+          '教程&回答',
+          style: TextStyle(
+            color: Colors.black,
+            decoration: TextDecoration.underline,
+          ),
+        ),
+      ),
     );
   }
 }
