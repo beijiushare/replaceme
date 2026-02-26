@@ -1,0 +1,38 @@
+name: Build Development Release
+
+on:
+  push:
+    branches: [ main, master, develop ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.10.8'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build Release APK
+        run: |
+          flutter build apk --release --split-per-abi
+        env:
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+
+      - name: Upload APK artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: release-apks
+          path: |
+            build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
+            build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
+            build/app/outputs/flutter-apk/app-release.apk
