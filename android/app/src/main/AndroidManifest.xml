@@ -1,4 +1,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--网络权限 -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    
+    <!-- 存储权限-->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" 
+                     android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" 
+                     android:minSdkVersion="33" />
     <application
         android:label="replaceme"
         android:name="${applicationName}"

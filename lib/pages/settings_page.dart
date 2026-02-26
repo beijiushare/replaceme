@@ -82,7 +82,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       Expanded(
                         flex: 1,
                         child: RadioListTile<String>(
-                          title: const Text('保质期百分比'),
+                          title: const Text('百分比'),
                           value: 'percentage',
                           groupValue: appProvider.warningRuleType,
                           contentPadding: EdgeInsets.zero,
