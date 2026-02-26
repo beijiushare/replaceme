@@ -29,7 +29,7 @@ jobs:
           SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
 
       - name: Upload APK artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: release-apks
           path: |
