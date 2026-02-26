@@ -38,7 +38,10 @@ jobs:
           SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
 
       - name: List build files
-        run: ls -la build/app/outputs/flutter-apk/
+        run: |
+          ls -la build/app/outputs/flutter-apk/
+  
+          find build -name "*.apk" -type f
 
       - name: Upload APK artifacts
         uses: actions/upload-artifact@v4
