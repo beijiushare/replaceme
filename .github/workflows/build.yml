@@ -20,18 +20,18 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
                                       
-      - name: Build APK (split per ABI)
+      - name: Build APK (universal)
         run: |
-          flutter build apk --release --split-per-abi --no-tree-shake-icons
+          flutter build apk --release --no-tree-shake-icons
         env:
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
           STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
           SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
 
-      - name: Build APK (universal)
+      - name: Build APK (split per ABI)
         run: |
-          flutter build apk --release --no-tree-shake-icons
+          flutter build apk --release --split-per-abi --no-tree-shake-icons
         env:
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
