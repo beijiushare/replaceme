@@ -12,7 +12,7 @@ class RecentPage extends StatelessWidget {
 
   // 打开外部链接
   Future<void> _launchURL() async {
-    final url = Uri.parse('https://oldhelp.beijiu.top/more/more-operations/replaceme.html');
+    final url = Uri.parse('https://oldhelp.beijiu.top/more/more-operations/replaceme/index.html');
     if (await canLaunchUrl(url)) {
       await launchUrl(url, mode: LaunchMode.externalApplication);
     }
